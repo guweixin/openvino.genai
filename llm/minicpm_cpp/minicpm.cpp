@@ -16,7 +16,7 @@
 #include "openvino/pass/pattern/op/wrap_type.hpp"
 #include "openvino/pass/serialize.hpp"
 #include "sampling.hpp"
-
+// #include <torch/torch.h>
 #ifdef _WIN32
 #include <codecvt>
 #include <fcntl.h>
@@ -39,16 +39,18 @@ const std::string sentences[] =
     "患者男，年龄29岁，血型O，因思维迟钝，易激怒，因发热伴牙龈出血14天，乏力、头晕5天就诊我院急诊科。快速完善检查，血常规显示患者三系血细胞重度减低，凝血功能检查提示APTT明显延长，纤维蛋白原降低，血液科会诊后发现患者高热、牙龈持续出血，胸骨压痛阳性.于3903年3月7日入院治疗，出现头痛、头晕、伴发热（最高体温42℃）症状，曾到其他医院就医。8日症状有所好转，9日仍有头痛、呕吐，四肢乏力伴发热。10日凌晨到本院就诊。患者5d前出现突发性思维迟钝，脾气暴躁，略有不顺心就出现攻击行为，在院外未行任何诊治。既往身体健康，平素性格内向。体格检查无异常。血常规白细胞中单核细胞百分比升高。D-二聚体定量1412μg/L，骨髓穿刺示增生极度活跃，异常早幼粒细胞占94%.外周血涂片见大量早幼粒细胞，并可在胞浆见到柴捆样细胞.以下是血常规详细信息：1.病人红细胞计数结果：3.2 x10^12/L. 附正常参考范围：新生儿:（6.0～7.0）×10^12/L；婴儿：（5.2～7.0）×10^12/L; 儿童：（4.2～5.2）×10^12/L; 成人男：（4.0～5.5）×10^12/L; 成人女：（3.5～5.0）×10^12/L. 临床意义：生理性红细胞和血红蛋白增多的原因：精神因素（冲动、兴奋、恐惧、冷水浴刺激等导致肾上腺素分泌增多的因素）、红细胞代偿性增生（长期低气压、缺氧刺激，多次献血）；生理性红细胞和血红蛋白减少的原因：造血原料相对不足，多见于妊娠、6个月～2岁婴幼儿、某些老年性造血功能减退；病理性增多：多见于频繁呕吐、出汗过多、大面积烧伤、血液浓缩，慢性肺心病、肺气肿、高原病、肿瘤以及真性红细胞增多症等；病理性减少：多见于白血病等血液系统疾病；急性大出血、严重的组织损伤及血细胞的破坏等；合成障碍，见于缺铁、维生素B12缺乏等。2. 病人血红蛋白测量结果：108g/L. 附血红蛋白正常参考范围：男性120～160g/L；女性110～150g/L；新生儿170～200g/L；临床意义：临床意义与红细胞计数相仿，但能更好地反映贫血程度，极重度贫血（Hb<30g/L）、重度贫血（31～60g/L）、中度贫血（61～90g/L）、男性轻度贫血（90~120g/L）、女性轻度贫血（90~110g/L）。3. 病人白细胞计数结果：13.6 x 10^9/L; 附白细胞计数正常参考范围：成人（4.0～10.0）×10^9/L；新生儿（11.0～12.0）×10^9/L。临床意义：1）生理性白细胞计数增高见于剧烈运动、妊娠、新生儿；2）病理性白细胞增高见于急性化脓性感染、尿毒症、白血病、组织损伤、急性出血等；3）病理性白细胞减少见于再生障碍性贫血、某些传染病、肝硬化、脾功能亢进、放疗化疗等。4. 病人白细胞分类技术结果：中性粒细胞（N）50%、嗜酸性粒细胞（E）3.8%、嗜碱性粒细胞（B）0.2%、淋巴细胞（L）45%、单核细胞（M）1%。附白细胞分类计数正常参考范围：中性粒细胞（N）50%～70%、嗜酸性粒细胞（E）1%～5%、嗜碱性粒细胞（B）0～1%、淋巴细胞（L）20%～40%、单核细胞（M）3%～8%；临床意义：1）中性粒细胞为血液中的主要吞噬细胞，在细菌性感染中起重要作用。2）嗜酸性粒细胞①减少见于伤寒、副伤寒、大手术后、严重烧伤、长期用肾上腺皮质激素等。②增多见于过敏性疾病、皮肤病、寄生虫病，一些血液病及肿瘤，如慢性粒细胞性白血病、鼻咽癌、肺癌以及宫颈癌等；3）嗜碱性粒细胞 a 减少见于速发型过敏反应如过敏性休克，肾上腺皮质激素使用过量等。b 增多见于血液病如慢性粒细胞白血病，创伤及中毒，恶性肿瘤，过敏性疾病等；4）淋巴细胞 a 减少多见于传染病的急性期、放射病、细胞免疫缺陷病、长期应用肾上腺皮质激素后或放射线接触等。b 增多见于传染性淋巴细胞增多症、结核病、疟疾、慢性淋巴细胞白血病、百日咳、某些病毒感染等；5）单核细胞增多见于传染病或寄生虫病、结核病活动期、单核细胞白血病、疟疾等。5. 病人血小板计数结果：91 x10^9/L. 附血小板计数正常参考范围：（100～300）×10^9/L. 临床意义：1）血小板计数增高见于真性红细胞增多症、出血性血小板增多症、多发性骨髓瘤、慢性粒细胞性白血病及某些恶性肿瘤的早期等；2）血小板计数减低见于 a 骨髓造血功能受损，如再生障碍性贫血，急性白血病；b 血小板破坏过多，如脾功能亢进；c 血小板消耗过多，如弥散性血管内凝血等。6. 以往病例分析内容参考：白血病一般分为急性白血病和慢性白血病。1）急性白血病血常规报告表现为：白细胞增高，少数大于100×10^9/L，称为高白细胞白血病，部分患者白细胞正常或减少，低者可小于1.0×10^9/L，以AML中的M3型多见。在白细胞分类中，80％以上可见大量的幼稚细胞，有时仅见幼稚细胞和少量成熟的细胞，而无中间型细胞，称为白血病的裂孔现象。少数白细胞低的患者周围血幼稚细胞很少，此类患者必须骨髓穿刺才能确诊。多数急性白血病患者初诊时有不同程度的贫血；一般属正常细胞正色素型。但贫血很快会进行性加重。30％的患者血涂片中可见有核红细胞。血小板计数绝大部分患者减少，严重者小于10×10^9/L，仅极少数患者血小板计数正常。2） 慢性白血病血常规报告表现为：白细胞总数明显增高，通常大于30×10^9/L。半数患者大于100×10^9/L。中性粒细胞明显增多，可见各阶段粒细胞，以中性中幼粒，晚幼粒细胞居多，原始粒细胞小于等于10％，通常为1％～5％，嗜酸和嗜碱粒细胞亦增多。初诊时约有50％患者血小板增高，少数可大于1000×10^9/L。红细胞和血红蛋白一般在正常范围，若出现血红蛋白减低，血小板计数明显升高或降低，则提示疾病向加速期或急变期转化。7. 历史相关研究: 急性髓系白血病（AML）是造血干细胞恶性克隆性疾病。在AML的诊断、治疗以及判断预后的过程中，基因异常是一项重要指标。随着基因检测技术的不断进步，越来越多与AML发生相关的基因被人们发现，并且这些基因在指导预后方面有重要意义。常见和急性髓系白血病相关的基因突变有: 1）RUNX1-RUNX1T1; 2）CBFB-MYH11; 3）NPM1：核磷蛋白1（nucleophosmin 1，NPM1）; 4）CEBPA：CCAAT增强子结合蛋白α基因（CCAAT/en－hancer binding protein α，CEBPA）; 5）MLLT3-KMT2A; 6）DEK-NUP214; 7）KMT2A：KMT2A基因（也称为MLL基因）问：请基于以上信息做出判断，该患者是否有罹患急性白血病的风险？请结合上述内容给出判断的详细解释，并简要总结潜在的早期征兆、预防方法、相关的基因突变、常用的治疗手段，以及当前已上市和正在临床阶段的药物清单。答：",
     "患者男，年龄29岁，血型O，因思维迟钝，易激怒，因发热伴牙龈出血14天，乏力、头晕5天就诊我院急诊科。快速完善检查，血常规显示患者三系血细胞重度减低，凝血功能检查提示APTT明显延长，纤维蛋白原降低，血液科会诊后发现患者高热、牙龈持续出血，胸骨压痛阳性.于3903年3月7日入院治疗，出现头痛、头晕、伴发热（最高体温42℃）症状，曾到其他医院就医。8日症状有所好转，9日仍有头痛、呕吐，四肢乏力伴发热。10日凌晨到本院就诊。患者5d前出现突发性思维迟钝，脾气暴躁，略有不顺心就出现攻击行为，在院外未行任何诊治。既往身体健康，平素性格内向。体格检查无异常。血常规白细胞中单核细胞百分比升高。D-二聚体定量1412μg/L，骨髓穿刺示增生极度活跃，异常早幼粒细胞占94%.外周血涂片见大量早幼粒细胞，并可在胞浆见到柴捆样细胞.以下是血常规详细信息：1.病人红细胞计数结果：3.2 x10^12/L. 附正常参考范围：新生儿:（6.0～7.0）×10^12/L；婴儿：（5.2～7.0）×10^12/L; 儿童：（4.2～5.2）×10^12/L; 成人男：（4.0～5.5）×10^12/L; 成人女：（3.5～5.0）×10^12/L. 临床意义：生理性红细胞和血红蛋白增多的原因：精神因素（冲动、兴奋、恐惧、冷水浴刺激等导致肾上腺素分泌增多的因素）、红细胞代偿性增生（长期低气压、缺氧刺激，多次献血）；生理性红细胞和血红蛋白减少的原因：造血原料相对不足，多见于妊娠、6个月～2岁婴幼儿、某些老年性造血功能减退；病理性增多：多见于频繁呕吐、出汗过多、大面积烧伤、血液浓缩，慢性肺心病、肺气肿、高原病、肿瘤以及真性红细胞增多症等；病理性减少：多见于白血病等血液系统疾病；急性大出血、严重的组织损伤及血细胞的破坏等；合成障碍，见于缺铁、维生素B12缺乏等。2. 病人血红蛋白测量结果：108g/L. 附血红蛋白正常参考范围：男性120～160g/L；女性110～150g/L；新生儿170～200g/L；临床意义：临床意义与红细胞计数相仿，但能更好地反映贫血程度，极重度贫血（Hb<30g/L）、重度贫血（31～60g/L）、中度贫血（61～90g/L）、男性轻度贫血（90~120g/L）、女性轻度贫血（90~110g/L）。3. 病人白细胞计数结果：13.6 x 10^9/L; 附白细胞计数正常参考范围：成人（4.0～10.0）×10^9/L；新生儿（11.0～12.0）×10^9/L。临床意义：1）生理性白细胞计数增高见于剧烈运动、妊娠、新生儿；2）病理性白细胞增高见于急性化脓性感染、尿毒症、白血病、组织损伤、急性出血等；3）病理性白细胞减少见于再生障碍性贫血、某些传染病、肝硬化、脾功能亢进、放疗化疗等。4. 病人白细胞分类技术结果：中性粒细胞（N）50%、嗜酸性粒细胞（E）3.8%、嗜碱性粒细胞（B）0.2%、淋巴细胞（L）45%、单核细胞（M）1%。附白细胞分类计数正常参考范围：中性粒细胞（N）50%～70%、嗜酸性粒细胞（E）1%～5%、嗜碱性粒细胞（B）0～1%、淋巴细胞（L）20%～40%、单核细胞（M）3%～8%；临床意义：1）中性粒细胞为血液中的主要吞噬细胞，在细菌性感染中起重要作用。2）嗜酸性粒细胞①减少见于伤寒、副伤寒、大手术后、严重烧伤、长期用肾上腺皮质激素等。②增多见于过敏性疾病、皮肤病、寄生虫病，一些血液病及肿瘤，如慢性粒细胞性白血病、鼻咽癌、肺癌以及宫颈癌等；3）嗜碱性粒细胞 a 减少见于速发型过敏反应如过敏性休克，肾上腺皮质激素使用过量等。b 增多见于血液病如慢性粒细胞白血病，创伤及中毒，恶性肿瘤，过敏性疾病等；4）淋巴细胞 a 减少多见于传染病的急性期、放射病、细胞免疫缺陷病、长期应用肾上腺皮质激素后或放射线接触等。b 增多见于传染性淋巴细胞增多症、结核病、疟疾、慢性淋巴细胞白血病、百日咳、某些病毒感染等；5）单核细胞增多见于传染病或寄生虫病、结核病活动期、单核细胞白血病、疟疾等。5. 病人血小板计数结果：91 x10^9/L. 附血小板计数正常参考范围：（100～300）×10^9/L. 临床意义：1）血小板计数增高见于真性红细胞增多症、出血性血小板增多症、多发性骨髓瘤、慢性粒细胞性白血病及某些恶性肿瘤的早期等；2）血小板计数减低见于 a 骨髓造血功能受损，如再生障碍性贫血，急性白血病；b 血小板破坏过多，如脾功能亢进；c 血小板消耗过多，如弥散性血管内凝血等。6. 以往病例分析内容参考：白血病一般分为急性白血病和慢性白血病。1）急性白血病血常规报告表现为：白细胞增高，少数大于100×10^9/L，称为高白细胞白血病，部分患者白细胞正常或减少，低者可小于1.0×10^9/L，以AML中的M3型多见。在白细胞分类中，80％以上可见大量的幼稚细胞，有时仅见幼稚细胞和少量成熟的细胞，而无中间型细胞，称为白血病的裂孔现象。少数白细胞低的患者周围血幼稚细胞很少，此类患者必须骨髓穿刺才能确诊。多数急性白血病患者初诊时有不同程度的贫血；一般属正常细胞正色素型。但贫血很快会进行性加重。30％的患者血涂片中可见有核红细胞。血小板计数绝大部分患者减少，严重者小于10×10^9/L，仅极少数患者血小板计数正常。2） 慢性白血病血常规报告表现为：白细胞总数明显增高，通常大于30×10^9/L。半数患者大于100×10^9/L。中性粒细胞明显增多，可见各阶段粒细胞，以中性中幼粒，晚幼粒细胞居多，原始粒细胞小于等于10％，通常为1％～5％，嗜酸和嗜碱粒细胞亦增多。初诊时约有50％患者血小板增高，少数可大于1000×10^9/L。红细胞和血红蛋白一般在正常范围，若出现血红蛋白减低，血小板计数明显升高或降低，则提示疾病向加速期或急变期转化。7. 历史相关研究: 急性髓系白血病（AML）是造血干细胞恶性克隆性疾病。在AML的诊断、治疗以及判断预后的过程中，基因异常是一项重要指标。随着基因检测技术的不断进步，越来越多与AML发生相关的基因被人们发现，并且这些基因在指导预后方面有重要意义。常见和急性髓系白血病相关的基因突变有: 1）RUNX1-RUNX1T1：8号染色体和21号染色体易位[t(8;21)(q22;q22)]是RUNX1/RUNX1T1融合基因产生的基础。RUNX1/RUNX1T1融合基因与CBFB-MYH11融合基因导致的AML病因、临床特征相似，被合称为CBF-AML。核心结合因子（CBF）在造血干细胞的产生以及造血过程中起到重要作用，RUNX1编码CBF中的ɑ亚基，该亚基负责与DNA直接结合。因此RUNX1/RUNX1T1融合基因的产生会破坏CBF的功能，导致髓系分化阻断并最终导致白血病。2）CBFB-MYH11：CBFB-MYH11融合基因是染色体重排的结果，较常见inv(16)(p13.1q22)，较少见的类型为t(16;16)(p13.1;q22)。该融合基因与M4型AML发生相关，其特征为存在骨髓单核细胞母细胞和非典型嗜酸性粒细胞。小鼠模型表明，CBFB-MYH11融合基因可以破坏核心结合因子（CBF）的功能，导致髓系分化阻断并最终导致白血病。虽然单纯CBFB-MYH11的表达不足以导致白血病的发生，但CBFB-MYH11和其他突变的结合可以特异性地导致髓系白血病的发展。3）NPM1：核磷蛋白1（nucleophosmin 1，NPM1）属于核磷蛋白家族，是一种广泛表达的磷蛋白，能在核仁、核质和胞质之间不断穿梭。该基因位于5q35，包含12个外显子，编码3种核磷蛋白亚型。NPM1主要有4种功能：a 参与核糖体生物合成；b 维持基因的稳定性；c 依赖p53的应激反应；d 通过ARF-p53的相互作用从而调控生长抑制途径。4）CEBPA：CCAAT增强子结合蛋白α基因（CCAAT/en－hancer binding protein α，CEBPA）属亮氨拉链转录因子家族，位于染色体19q13。CEBPA突变会上调造血干细胞归巢和粒细胞分化的基因，下调参与调控造血细胞增殖的信号分子和转录因子的基因，阻碍DNA从G1期向S期演变，且诱导晚期造血细胞成熟，导致白血病发生。CEBPA基因突变发生率在成人AML患者中占5%-14%。突变可分为双突变和单突变，N端移码突变和C端框内突变同时存在即双突变较多见，而单杂合子突变不常见。国内外的多项研究表明双突变的预后良好，无论是CR率及维持化疗后的总CR率CEBPA双突变组均明显高于CEBPA单体突变组及CEBPA阴性组，且中位OS（60个月）和中位EFS（53个月）较其余两组均明显延长。5）MLLT3-KMT2A：MLLT3-KMT2A融合基因是t(9;11)(p21.3;q23.3)染色体易位形成的，其中赖氨酸甲基转移酶2A即KMT2A（旧称MLL）基因突变在AML中较常见，发生率约为10%。其中KMT2A与MLLT3（也被称为AF9或LTG9）基因融合是其中最常见的类型。因相较其他类型KMT2A融合基因的AML，MLLT3-KMT2A融合基因阳性的AML预后差异明显，因此将其单独列出。5）DEK-NUP214：DEK-NUP214融合基因由t(6;9)(p22.3；q34.1)引起，与大概1%的AML发生相关。Carl Sandén等人的研究发现DEK-NUP214基因主要影响细胞增殖过程，通过上调雷帕霉素复合物1(mTORC1)的活性来促进细胞增殖，使用雷帕霉素受体抑制剂治疗对抑制此类白血病细胞增殖有一定效果。DEK-NUP214融合基因阳性的AML通常预后不佳，Slovak所做队列研究显示该类型AML（包括儿童及成人）CR率仅有65%，中位OS仅有13.5个月，中位DFS仅有9.9个月。6）KMT2A：KMT2A基因（也称为MLL基因），位于11q23，编码组蛋白H3赖氨酸4甲基转移酶。KMT2A基因重排发生于大约3%-7%的成人初发AML。KMT2A编码一种组蛋白甲基转移酶，它在胚胎发育和造血过程中对基因表达的维持有重大作用。KMT2A基因易位会产生嵌合的KMT2A融合蛋白，直接与DNA结合并上调基因转录，导致下游KMT2A靶点的异常表达，包括HOX基因等，从而导致AML的发生。问：请基于以上信息做出判断，该患者是否有罹患急性白血病的风险？请结合上述内容给出判断的详细解释，并简要总结潜在的早期征兆、预防方法、相关的基因突变、常用的治疗手段，以及当前已上市和正在临床阶段的药物清单。答：",
     "If I have 100 million dollars, what kinds of projects should I invest to maximize my benefits in background of a growing number of artificial intelligence technologies?",
-    "What is OpenVINO?",
+    // "What is OpenVINO?",
 };
 
 namespace {
 
 struct Args {
     std::string ov_model_path = "openvino_model.xml";
-    std::string token_model_path = "tokenizer.xml";
-    std::string detoken_model_path = "detokenizer.xml";
-    std::string device = "GPU";
+    std::string ov_model_path_nonkv = "openvino_model_non_kvcache.xml";
+    std::string ov_model_path_kv = "openvino_model_kvcache.xml";
+    std::string token_model_path = "openvino_tokenizer.xml";
+    std::string detoken_model_path = "openvino_detokenizer.xml";
+    std::string device = "CPU";
     bool reduce_logits = false;
     bool do_sample = false;
     int top_k = 0;
@@ -88,6 +90,12 @@ static Args parse_args(const std::vector<std::string>& argv) {
         }
         else if (arg == "-m" || arg == "--model") {
             args.ov_model_path = argv[++i];
+        }
+        else if (arg == "-mnon" || arg == "--nonmodel") {
+            args.ov_model_path_nonkv = argv[++i];
+        }
+        else if (arg == "-mkv" || arg == "--kvmodel") {
+            args.ov_model_path_kv = argv[++i];
         }
         else if (arg == "-token") {
             args.token_model_path = argv[++i];
@@ -200,6 +208,28 @@ int64_t get_out_token_id(const std::vector<int>& input_ids, float* logits, size_
     }
 
     return out_token;
+}
+
+
+int64_t get_new_token(const ov::Tensor& logits) {
+    // 获取 logits 的形状
+    auto shape = logits.get_shape();
+
+    // 确保 logits 具有至少三维
+    if (shape.size() < 3) {
+        throw std::invalid_argument("Logits tensor must have at least 3 dimensions.");
+    }
+
+    // 获取第一批的最后一个时间步的logits指针
+    const float* data = logits.data<const float>();
+    size_t vocab_size = shape[2];
+    const float* last_time_step_logits = data + (shape[1] - 1) * vocab_size;
+
+    // 找到最大值的索引
+    const float* max_elem = std::max_element(last_time_step_logits, last_time_step_logits + vocab_size);
+    int64_t new_token = std::distance(last_time_step_logits, max_elem);
+
+    return new_token;
 }
 
 std::pair<ov::Tensor, ov::Tensor> tokenize(ov::InferRequest& tokenizer, std::string && prompt) {
@@ -358,6 +388,211 @@ public:
 
 }
 
+ov::Tensor reshape_tensor(float* tensor_data, ov::Shape tensor_shape, int64_t move=1){
+    // 将原始 tensor 裁剪到目标形状并复制到 reshaped_tensor
+    size_t batch_size = tensor_shape[0];
+    size_t channels = tensor_shape[1];
+    size_t original_sequence_length = tensor_shape[2];
+    size_t feature_dim = tensor_shape[3];
+    size_t sequence_length = original_sequence_length - 1;
+    // 创建一个新的 tensor，形状为 [1, 8, 1023, 64]
+    ov::Tensor reshaped_tensor(ov::element::f32, {batch_size, channels, sequence_length, feature_dim});
+    float* reshaped_data = reshaped_tensor.data<float>();
+    for (size_t b = 0; b < batch_size; ++b) {
+        for (size_t c = 0; c < channels; ++c) {
+            std::copy(tensor_data + b * channels * original_sequence_length * feature_dim + c * original_sequence_length * feature_dim + move * feature_dim,
+                      tensor_data + b * channels * original_sequence_length * feature_dim + c * original_sequence_length * feature_dim + (move + sequence_length) * feature_dim,
+                      reshaped_data + b * channels * sequence_length * feature_dim + c * sequence_length * feature_dim);
+        }
+    }
+
+    return reshaped_tensor;
+}
+
+ov::Tensor resizet_tensor_for_npu(const ov::Tensor& input_tensor, int64_t padding_token, size_t max_length) {
+    // 获取张量的形状
+    auto shape = input_tensor.get_shape();
+    // 确保张量是二维的且第一个维度是1
+    if (shape.size() != 2 || shape[0] != 1) {
+        throw std::invalid_argument("Input tensor must be of shape [1, i].");
+    }
+    // 获取第二个维度的大小
+    size_t i = shape[1];
+    ov::Shape new_shape = {1, max_length};
+    // 创建一个新的张量，类型与原张量相同
+    ov::Tensor output_tensor(input_tensor.get_element_type(), new_shape);
+    // 检查维度是否超过max_length
+    // 如果i == max_length，直接返回原张量
+    if (i == max_length) {    
+        return input_tensor;
+    }
+    // 如果i小于max_length，进行填充
+    else if (i < max_length){
+        // 获取输入和输出张量的数据指针
+        const int64_t* input_data = input_tensor.data<const int64_t>();
+        int64_t* output_data = output_tensor.data<int64_t>();
+        // 填充前面的部分
+        size_t padding_size = max_length - i;
+        std::fill_n(output_data, padding_size, padding_token);
+        // 复制原始张量的内容到新的张量
+        std::copy(input_data, input_data + i, output_data + padding_size);
+    }
+    else{
+        std::cerr << "Warning: Tensor dimension exceeds max_length, truncating to " << max_length << std::endl;
+        // 获取输入和输出张量的数据指针
+        const int64_t* input_data = input_tensor.data<const int64_t>();
+        int64_t* output_data = output_tensor.data<int64_t>();
+        // 复制前 max_length 个元素到新的张量
+        std::copy(input_data, input_data + max_length, output_data);
+    }       
+    return output_tensor;
+}
+
+void print_tensor(const ov::Tensor& tensor) {
+    // 获取 tensor 的数据类型
+    auto element_type = tensor.get_element_type();
+    // 获取 tensor 的形状
+    auto shape = tensor.get_shape();
+    
+    // 打印形状
+    std::cout << "Tensor shape: [";
+    for (size_t i = 0; i < shape.size(); ++i) {
+        std::cout << shape[i];
+        if (i < shape.size() - 1) {
+            std::cout << ", ";
+        }
+    }
+    std::cout << "]" << std::endl;
+
+    // 打印 tensor 数据，根据数据类型进行不同处理
+    if (element_type == ov::element::f32) {
+        float* data = tensor.data<float>();
+        size_t total_size = tensor.get_size();
+        // total_size = 20;
+        for (size_t i = 0; i < total_size; ++i) {
+            std::cout << data[i] << " ";
+            if ((i + 1) % shape.back() == 0) {
+                std::cout << std::endl; // 每个最后一个维度后换行
+            }
+        }
+    } else if (element_type == ov::element::i64) {
+        int64_t* data = tensor.data<int64_t>();
+        size_t total_size = tensor.get_size();
+        // total_size = 20;
+        for (size_t i = 0; i < total_size; ++i) {
+            std::cout << data[i] << " ";
+            if ((i + 1) % shape.back() == 0) {
+                std::cout << std::endl;
+            }
+        }
+    } else {
+        std::cerr << "Unsupported tensor element type!" << std::endl;
+    }
+}
+
+void print_4d_tensor(const ov::Tensor& tensor) {
+    // 获取张量的形状
+    auto shape = tensor.get_shape();
+    if (shape.size() != 4) {
+        std::cerr << "Error: The tensor is not 4-dimensional!" << std::endl;
+        return;
+    }
+    // 获取张量的数据指针
+    const float* data = tensor.data<const float>();
+    // 计算最后一个元素的索引
+    size_t index = (shape[0] - 1) * shape[1] * shape[2] * shape[3] +  // 计算第一个维度的偏移量
+                   (shape[1] - 1) * shape[2] * shape[3] +              // 计算第二个维度的偏移量
+                   (shape[2] - 1) * shape[3] +                         // 计算第三个维度的偏移量
+                   (shape[3] - 1);                                     // 计算第四个维度的偏移量
+
+    std::cout << data[0] <<" -------------- "<< data[index] << std::endl;
+    // 打印张量数据
+    // for (size_t i = 0; i < shape[0]; ++i) {
+    //     std::cout << "Batch " << i << ":" << std::endl;
+    //     for (size_t j = 0; j < shape[1]; ++j) {
+    //         std::cout << "  Channel " << j << ":" << std::endl;
+    //         for (size_t k = 0; k < shape[2]; ++k) {
+    //             std::cout << "    [";
+    //             for (size_t l = 0; l < shape[3]; ++l) {
+    //                 std::cout << data[i * shape[1] * shape[2] * shape[3] + 
+    //                                   j * shape[2] * shape[3] + 
+    //                                   k * shape[3] + l];
+    //                 if (l < shape[3] - 1) {
+    //                     std::cout << ", ";
+    //                 }
+    //             }
+    //             std::cout << "]" << std::endl;
+    //         }
+    //     }
+    // }
+}
+
+// Function to replace 'present' with 'past_key_values' in a string
+std::string replacePresentWithPastKeyValues(const std::string& name) {
+    std::string new_name = name;
+    size_t pos = new_name.find("present");
+    if (pos != std::string::npos) {
+        new_name.replace(pos, 7, "past_key_values");  // 'present' is 7 characters long
+    }
+    return new_name;
+}
+
+void update_key_values(std::vector<ov::Output<const ov::Node>> outputs, ov::InferRequest ireq_nonkv, ov::InferRequest ireq_kv){
+    for (size_t i = 1; i < outputs.size(); ++i) {
+        std::string output_name = outputs[i].get_any_name();
+        std::string input_name = replacePresentWithPastKeyValues(output_name);
+        float* tensor_data = ireq_nonkv.get_tensor(output_name).data<float>();
+        ov::Shape tensor_shape = ireq_nonkv.get_tensor(output_name).get_shape();
+        ov::Tensor reshaped_tensor = reshape_tensor(tensor_data, tensor_shape);
+        ireq_kv.set_tensor(input_name, reshaped_tensor);
+    }
+}
+
+void update_past_key_values(ov::Tensor& input_tensor, const ov::Tensor& output_tensor) {
+    // Step 1: 获取张量的形状
+    auto input_shape = input_tensor.get_shape();   // [1, 8, 1023, 64]
+    auto output_shape = output_tensor.get_shape(); // [1, 8, 1024, 64]
+
+    // Step 2: 创建新的张量，用于存储拼接后的结果
+    std::vector<size_t> new_shape = {input_shape[0], input_shape[1], input_shape[2] + 1, input_shape[3]};
+    ov::Tensor concatenated_tensor(input_tensor.get_element_type(), new_shape);
+
+    // Step 3: 复制 input_tensor 和 output_tensor 的数据到 concatenated_tensor 中
+    float* concatenated_data = concatenated_tensor.data<float>();
+    float* input_data = input_tensor.data<float>();
+    float* output_data = output_tensor.data<float>();
+
+    // 复制 input_tensor 的数据
+    size_t input_size = input_shape[2] * input_shape[3];
+    for (size_t i = 0; i < input_shape[0] * input_shape[1]; ++i) {
+        std::memcpy(concatenated_data + i * (input_size + output_shape[3]), 
+                    input_data + i * input_size, 
+                    input_size * sizeof(float));
+    }
+
+    // 复制 output_tensor 的数据
+    for (size_t i = 0; i < input_shape[0] * input_shape[1]; ++i) {
+        std::memcpy(concatenated_data + i * (input_size + output_shape[3]) + input_size, 
+                    output_data + i * output_shape[2] * output_shape[3], 
+                    output_shape[3] * sizeof(float));
+    }
+
+    // Step 4: 创建一个新的输入张量，并裁剪掉第三维度的第一个元素
+    ov::Tensor sliced_tensor(input_tensor.get_element_type(), input_shape);
+    float* sliced_data = sliced_tensor.data<float>();
+
+    size_t new_input_size = input_shape[2] * input_shape[3];
+    for (size_t i = 0; i < input_shape[0] * input_shape[1]; ++i) {
+        std::memcpy(sliced_data + i * new_input_size, 
+                    concatenated_data + i * (input_size + output_shape[3]) + output_shape[3], 
+                    new_input_size * sizeof(float));
+    }
+
+    // Step 5: 将裁剪后的张量替换为 input_tensor
+    input_tensor = sliced_tensor;
+}
+
+
 int main(int argc, char* argv[]) try {
 #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
@@ -416,12 +651,21 @@ int main(int argc, char* argv[]) try {
 	//Add Dynamic Quant
         device_config[ov::hint::dynamic_quantization_group_size.name()] = group_size;
     }
-
+    if (device.find("NPU") != std::string::npos) {
+        device_config[ov::cache_dir.name()] = "llm-cache";
+    //     device_config[ov::intel_gpu::hint::queue_throttle.name()] = ov::intel_gpu::hint::ThrottleLevel::MEDIUM;
+    //     device_config[ov::intel_gpu::hint::queue_priority.name()] = ov::hint::Priority::MEDIUM;
+    //     device_config[ov::intel_gpu::hint::host_task_priority.name()] = ov::hint::Priority::HIGH;
+    //     device_config[ov::hint::enable_cpu_pinning.name()] = true;
+    //     device_config[ov::enable_profiling.name()] = false;
+	// //Add Dynamic Quant
+    //     device_config[ov::hint::dynamic_quantization_group_size.name()] = group_size;
+    }
     double total_time = 0;
     int count = 0;
     double first_time;
     
-    // Read OpenVINO Model
+    // // Read OpenVINO Model
     if (1 == convert_model) {
         startTime = Time::now();
         std::shared_ptr<ov::Model> model = core.read_model(args.ov_model_path);
@@ -444,13 +688,20 @@ int main(int argc, char* argv[]) try {
 
     //Compile model
     startTime = Time::now();
-    ov::CompiledModel compilemodel = core.compile_model(args.ov_model_path, device, device_config);
-    ov::InferRequest ireq = compilemodel.create_infer_request();
+    // ov::CompiledModel compilemodel = core.compile_model(args.ov_model_path, device, device_config);
+    // ov::InferRequest ireq = compilemodel.create_infer_request();
+
+    // load non-cache model and kvcache model for NPU
+    ov::CompiledModel compilemodel_nonkv = core.compile_model(args.ov_model_path_nonkv, device, device_config);
+    ov::CompiledModel compilemodel_kv = core.compile_model(args.ov_model_path_kv, device, device_config);
+    ov::InferRequest ireq_nonkv = compilemodel_nonkv.create_infer_request();
+    ov::InferRequest ireq_kv = compilemodel_kv.create_infer_request();
+
     duration_ms = get_duration_ms_until_now(startTime);
     std::cout << "Compile LLM model took " << duration_ms << " ms" << std::endl;
  
-    auto model_inputs = compilemodel.inputs();
-    auto inputs = compilemodel.inputs();
+    // auto model_inputs = compilemodel.inputs();
+    // auto inputs = compilemodel.inputs();
     TextStreamer text_streamer{ std::move(detokenizer) };
 	
     // input length, output length, first time, other time
@@ -464,62 +715,149 @@ int main(int argc, char* argv[]) try {
         tokenize(tokenizer, prompt_text.c_str());
         input_ids = tokenizer.get_tensor("input_ids");
         attention_mask = tokenizer.get_tensor("attention_mask");
-	auto input_len = input_ids.get_size();
-        std::cout << "input lenghth " << input_ids.get_size() << std::endl;
-	    
+	    auto input_len = input_ids.get_size();
+
         std::vector<int> output_ids;
         output_ids.reserve(input_ids.get_size());
         for (size_t idx = 0; idx < input_ids.get_size(); ++idx) {
             output_ids.emplace_back(((int)input_ids.data<const int64_t>()[idx]));
         }
-        
-        ireq.set_tensor("input_ids", input_ids);
-        ireq.set_tensor("attention_mask", attention_mask);
-        ireq.get_tensor("position_ids").set_shape(input_ids.get_shape());
-        std::iota(ireq.get_tensor("position_ids").data<int64_t>(), ireq.get_tensor("position_ids").data<int64_t>() + ireq.get_tensor("position_ids").get_size(), 0);
-        ireq.get_tensor("beam_idx").set_shape({ BATCH_SIZE });
-        ireq.get_tensor("beam_idx").data<int32_t>()[0] = 0;
+        // paadding for NPU ...........
+        size_t max_length_npu = ireq_nonkv.get_tensor("input_ids").get_size();
+        // 填充张量为从 0 开始的连续整数序列
+        ov::Shape shape = {1, input_ids.get_shape().at(1)};
+        ov::Tensor position_ids(ov::element::i64, shape);   
+        std::iota(position_ids.data<int64_t>(), position_ids.data<int64_t>() + input_ids.get_shape().at(1), 0);
+        // if pad_token_id is None:
+        // pad_token_id = 50256 
+        ov::Tensor input_ids_npu = resizet_tensor_for_npu(input_ids, 50256, max_length_npu);
+        ov::Tensor attention_mask_npu = resizet_tensor_for_npu(attention_mask, 0, max_length_npu);
+        ov::Tensor position_ids_npu = resizet_tensor_for_npu(position_ids, 1, max_length_npu);
+        ireq_nonkv.set_tensor("input_ids", input_ids_npu);
+        ireq_nonkv.set_tensor("attention_mask", attention_mask_npu);
+        ireq_nonkv.set_tensor("position_ids", position_ids_npu);
 
-	for (auto &&state : ireq.query_state()){
-            state.reset();
-        }
+        // ireq.set_tensor("input_ids", input_ids);
+        // ireq.set_tensor("attention_mask", attention_mask);
+        // ireq.get_tensor("position_ids").set_shape(input_ids.get_shape());
+        // std::iota(ireq.get_tensor("position_ids").data<int64_t>(), ireq.get_tensor("position_ids").data<int64_t>() + ireq.get_tensor("position_ids").get_size(), 0);
+        // ireq.get_tensor("beam_idx").set_shape({ BATCH_SIZE });
+        // ireq.get_tensor("beam_idx").data<int32_t>()[0] = 0;
+
+        // for (auto &&state : ireq.query_state()){
+        //         state.reset();
+        // }
+        for (auto &&state : ireq_nonkv.query_state()){
+                state.reset();
+            }            
+        for (auto &&state : ireq_kv.query_state()){
+                state.reset();
+            }
+        // ireq.infer();
 
         startTime = Time::now();
-        ireq.infer();
+        ireq_nonkv.infer();
+
         duration_ms = get_duration_ms_until_now(startTime);
         std::cout << "First token took " << duration_ms << " ms" << std::endl;
         first_time = duration_ms;
 
-        int64_t sequence_len = ireq.get_tensor("logits").get_shape().at(1) - 1;
-        size_t vocab_size = ireq.get_tensor("logits").get_shape().back();
-        float* logits = ireq.get_tensor("logits").data<float>() + sequence_len * vocab_size;
+        // int64_t sequence_len = ireq_nonkv.get_tensor("logits").get_shape().at(1) - 1;
+        int64_t sequence_len = input_ids.get_shape().at(1) - 1;
+        size_t vocab_size = ireq_nonkv.get_tensor("logits").get_shape().back();
+        float* logits = ireq_nonkv.get_tensor("logits").data<float>() + sequence_len * vocab_size;
+        
+        // int64_t sequence_len_ = ireq.get_tensor("logits").get_shape().at(1) - 1;
+        // size_t vocab_size_ = ireq.get_tensor("logits").get_shape().back();
+        // float* logits_ = ireq.get_tensor("logits").data<float>() + sequence_len_ * vocab_size_;
 
-        int64_t out_token = get_out_token_id(output_ids, logits, vocab_size, args);
+        // std::cout << "input_ids      " << std::to_string(input_ids.get_shape()[1])<< std::endl;
+        // std::cout << "max_length_npu " << std::to_string(max_length_npu)<< std::endl;
+        // std::cout << "sequence_len   " << std::to_string(sequence_len)<< std::endl;
+        // std::cout << "vocab_size     " << std::to_string(vocab_size)<< std::endl;
+        // int64_t out_token_ = get_out_token_id(output_ids, logits_, vocab_size, args);
+
+        int64_t out_token =  get_new_token(ireq_nonkv.get_tensor("logits"));  // NPU
         output_ids.emplace_back(((int)out_token));
+        ireq_kv.get_tensor("input_ids").set_shape({ BATCH_SIZE, 1 });
+        ireq_kv.get_tensor("position_ids").set_shape({ BATCH_SIZE, 1 });
 
-        ireq.get_tensor("input_ids").set_shape({ BATCH_SIZE, 1 });
-        ireq.get_tensor("position_ids").set_shape({ BATCH_SIZE, 1 });
+        // ireq.get_tensor("input_ids").set_shape({ BATCH_SIZE, 1 });
+        // ireq.get_tensor("position_ids").set_shape({ BATCH_SIZE, 1 });   
+        // // std::cout << "======== non-cache logits        " << std::to_string(ireq_nonkv.get_tensor("logits").get_shape().at(1))<< std::endl;
+        // std::cout << "****************ori out_token " << std::to_string(out_token_)<< std::endl;
+        // std::cout << "****************new out_token " << std::to_string(out_token)<< std::endl;
 
         constexpr int64_t SPECIAL_EOS_TOKEN = 2;  // There's no way to extract the value from the detokenizer for now
         while (true) {  //(out_token != SPECIAL_EOS_TOKEN)
+            // std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"<< std::endl;
+            // if (count> 8){
+            //     break;
+            // }
             startTime = Time::now();
-            ireq.get_tensor("input_ids").data<int64_t>()[0] = out_token;
-            ireq.get_tensor("attention_mask").set_shape({ BATCH_SIZE, ireq.get_tensor("attention_mask").get_shape()[1] + 1 });
-            std::fill_n(ireq.get_tensor("attention_mask").data<int64_t>(), ireq.get_tensor("attention_mask").get_size(), 1);
-            ireq.get_tensor("position_ids").data<int64_t>()[0] = ireq.get_tensor("attention_mask").get_size() - 2;
-            
-            ireq.start_async();
-            ireq.wait();
-            duration_ms = get_duration_ms_until_now(startTime);
+            // ireq.get_tensor("input_ids").data<int64_t>()[0] = out_token;
+            // ireq.get_tensor("attention_mask").set_shape({ BATCH_SIZE, ireq.get_tensor("attention_mask").get_shape()[1] + 1 });
+            // std::fill_n(ireq.get_tensor("attention_mask").data<int64_t>(), ireq.get_tensor("attention_mask").get_size(), 1);
+            // ireq.get_tensor("position_ids").data<int64_t>()[0] = ireq.get_tensor("attention_mask").get_size() - 2;
+                        
+            ireq_kv.get_tensor("input_ids").data<int64_t>()[0] = out_token;
+            std::fill_n(ireq_kv.get_tensor("attention_mask").data<int64_t>(), ireq_kv.get_tensor("attention_mask").get_shape()[1], 0);
+            std::fill_n(ireq_kv.get_tensor("attention_mask").data<int64_t>() + ireq_kv.get_tensor("attention_mask").get_shape()[1] - (sequence_len + count + 2), sequence_len + count + 2, 1);
+            std::vector<ov::Output<const ov::Node>> outputs = compilemodel_kv.outputs();
+            if (count==0){
+                update_key_values(outputs, ireq_nonkv, ireq_kv);
+            } else{
+                // for (size_t i = 1; i < outputs.size(); ++i) {
+                //     std::string output_name = outputs[i].get_any_name();
+                //     std::string input_name = replacePresentWithPastKeyValues(output_name);
+
+                //     // 假设推理已经完成，并获取输出张量
+                //     ov::Tensor output_tensor = ireq_kv.get_tensor(output_name); // output_name为你的输出层名称
+                //     auto output_shape = output_tensor.get_shape();
+                //     // 准备输入张量
+                //     ov::Tensor input_tensor = ireq_kv.get_tensor(input_name); // input_name为你的输入层名称
+                //     auto input_shape = input_tensor.get_shape();
+                //     // 获取指向数据的指针
+                //     float* output_data = output_tensor.data<float>();
+                //     float* input_data = input_tensor.data<float>();
+                //     // 遍历并复制数据
+                //     size_t channels = output_shape[1];
+                //     size_t height = output_shape[2] - 1;  // 新的高度是1023
+                //     size_t width = output_shape[3];
+                //     for (size_t c = 0; c < channels; ++c) {
+                //         for (size_t h = 0; h < height; ++h) {
+                //             for (size_t w = 0; w < width; ++w) {
+                //                 // output_data[..., c, h+1, w] -> input_data[..., c, h, w]
+                //                 input_data[c * height * width + h * width + w] =
+                //                     output_data[c * (height + 1) * width + (h + 1) * width + w];
+                //             }
+                //         }
+                //     }
+                //    // ireq_kv.set_tensor(input_name, input_tensor);
+                // }
+                update_key_values(outputs, ireq_kv, ireq_kv);
+            }
+            ireq_kv.get_tensor("position_ids").data<int64_t>()[0] = sequence_len + count + 1;
+            ireq_kv.start_async();
+            ireq_kv.wait();
+            // ireq.start_async();
+            // ireq.wait();
+
+            duration_ms = get_duration_ms_until_now(startTime);          
             count += 1;
             total_time += duration_ms;
 
             text_streamer.put(out_token);
-            logits = ireq.get_tensor("logits").data<float>();
+            // logits_ = ireq.get_tensor("logits").data<float>();
+            // int64_t out_token = get_out_token_id(output_ids, logits_, vocab_size, args);
 
-            out_token = get_out_token_id(output_ids, logits, vocab_size, args);
+            logits = ireq_kv.get_tensor("logits").data<float>();            
+            out_token =  get_new_token(ireq_kv.get_tensor("logits"));
             output_ids.emplace_back(((int)out_token));
 
+            // // std::cout << std::endl;
+            // std::cout << "***************ori out_token " << std::to_string(out_token_)<< std::endl;
+            // std::cout << "***************new out_token " << std::to_string(out_token)<< std::endl;
             if (args.output_fixed_len > 0) {
                 if(count >= (args.output_fixed_len - 1))
                     break;
